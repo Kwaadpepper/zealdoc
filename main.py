@@ -23,16 +23,12 @@ from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAct
 from docsets import Docsets
 from logger import log
 from logtype import LogType
+from variables import Variables
+from result_items import ResultItems
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
-variables = {
-    "selected_and_item": False,
-    "selected_docset": {},
-    "query": "",
-    "docset_query": "",
-}
-docsets = []
+Vars = Variables()
+log(Vars.query, LogType.WARNING)
 
 
 class Zealdocs(Extension):
@@ -51,47 +47,20 @@ class KeywordQueryEventListener(EventListener):
   def on_event(self, event, extension):
     try:
       log(extension, LogType.DEBUG)
-      log("Selected and items ? %d" % (variables["selected_and_item"]))
-      query = variables["query"] = event.query.replace("zd ", "", 1)
+      log("Selected and items ? %d" % (Vars.is_sel))
+      query = Vars.query = event.query.replace("zd ", "", 1)
       log(query, LogType.WARNING)
       ext_results_sorted = []
 
-      if variables["selected_and_item"]:
+      if Vars.is_sel:
         # open with dash-plugin://keys=python,django&query=string
         log("EXEC SEARCH", LogType.WARNING)
-        log(variables, LogType.WARNING)
-        log(
-            dir_path + os.path.sep + "images" + os.path.sep + "icon.png",
-            LogType.WARNING,
-        )
-        variables["query"].replace(variables["docset_query"], "", 1)
-        query = (
-            event.query.replace("zd ", "", 1)
-            .replace(variables["docset_query"], "", 1)
-            .strip()
-        )
+        Vars.query = query.replace(Vars.docset_query, "", 1).strip()
+
         return RenderResultListAction(
             [
-                ExtensionResultItem(
-                    icon=variables["selected_docset"]["icon2"],
-                    name="Search for %s in %s"
-                    % (query, variables["selected_docset"]["name"]),
-                    on_enter=OpenAction(
-                        path="dash-plugin://keys=%s&query=%s"
-                        % (variables["selected_docset"]["id"], query)
-                    ),
-                ),
-                ExtensionResultItem(
-                    icon=dir_path
-                    + os.path.sep
-                    + "images"
-                    + os.path.sep
-                    + "icon.png",
-                    name="Look in another docset",
-                    on_enter=ExtensionCustomAction(
-                        {"reset": True}, keep_app_open=True
-                    ),
-                ),
+                ResultItems.docset_searchforin_result(Vars.sel_docset, Vars.query),
+                ResultItems.docset_change_result(),
             ]
         )
       else:
@@ -99,58 +68,31 @@ class KeywordQueryEventListener(EventListener):
         query = event.query.replace("zd ", "", 1)
 
         # If User types a docset ID with keyword
-        if Docsets.docsetDict.get(query) or variables["selected_docset"]:
+        if Docsets.docsetDict.get(query) or Vars.sel_docset:
 
           # filter query to remove docset ID if needed or assign a
           # selected docset
-          if not variables["selected_and_item"]:
-            variables["selected_and_item"] = True
-            variables["selected_docset"] = Docsets.docsetDict.get(query)
+          if not Vars.is_sel:
+            Vars.is_sel = True
+            Vars.sel_docset = Docsets.docsetDict.get(query)
           else:
-            query = query.replace(
-                variables["selected_docset"]["id"], "", 1
+            Vars.query = query.replace(
+                Vars.sel_docset["id"], "", 1
             ).strip()
 
           return RenderResultListAction(
               [
-                  ExtensionResultItem(
-                      icon=variables["selected_docset"]["icon2"],
-                      name="Search for %s in %s"
-                      % (query, variables["selected_docset"]["name"]),
-                      on_enter=OpenAction(
-                          path="dash-plugin://keys=%s&query=%s"
-                          % (variables["selected_docset"]["id"], query)
-                      ),
-                  ),
-                  ExtensionResultItem(
-                      icon=dir_path
-                      + os.path.sep
-                      + "images"
-                      + os.path.sep
-                      + "icon.png",
-                      name="Look in another docset",
-                      on_enter=ExtensionCustomAction(
-                          {"reset": True}, keep_app_open=True
-                      ),
-                  ),
+                  ResultItems.docset_searchforin_result(Vars.sel_docset, query),
+                  ResultItems.docset_change_result(),
               ]
           )
 
         # User would select a docset
         else:
-          variables["selected_and_item"] = False
-          variables["selected_docset"] = {}
+          Vars.is_sel = False
+          Vars.sel_docset = {}
           for item in Docsets.sort_docsets(event.query):
-            ext_results_sorted.append(
-                ExtensionResultItem(
-                    icon=item["docset"]["icon2"],
-                    name=item["docset"]["name"],
-                    description="Search in %s" % item["docset"]["name"],
-                    on_enter=ExtensionCustomAction(
-                        item, keep_app_open=True
-                    ),
-                )
-            )
+            ext_results_sorted.append(ResultItems.docset_result(item['docset']))
 
       # return docsets sorted by score
       return RenderResultListAction(ext_results_sorted)
@@ -173,46 +115,26 @@ class ItemEnterEventListener(EventListener):
       if "reset" in data:
         # print docsets
         log("LIST DOCSETS RESET", LogType.WARNING)
-        variables["selected_and_item"] = False
-        variables["selected_docset"] = {}
-        for item in Docsets.sort_docsets(variables["query"]):
+        Vars.is_sel = False
+        Vars.sel_docset = {}
+        for item in Docsets.sort_docsets(Vars.query):
           ext_results_sorted.append(
-              ExtensionResultItem(
-                  icon=item["docset"]["icon2"],
-                  name=item["docset"]["name"],
-                  description="Search in %s" % item["docset"]["name"],
-                  on_enter=ExtensionCustomAction(item, keep_app_open=True),
-              )
+              ResultItems.docset_result(item["docset"])
           )
         return RenderResultListAction(ext_results_sorted)
       else:
         log("QUERY IN DOCSET", LogType.WARNING)
-        # store docset typed keyword
-        variables["docset_query"] = variables["query"]
         # reset query to allow search in a specific docset
-        variables["query"] = ""
-        variables["selected_and_item"] = True
-        variables["selected_docset"] = data["docset"]
+        Vars.query = ""
+        Vars.is_sel = True
+        Vars.sel_docset = data
+        # store docset typed keyword
+        Vars.docset_query = Vars.sel_docset['id']
         # you may want to return another list of results
         return RenderResultListAction(
             [
-                ExtensionResultItem(
-                    icon=data["docset"]["icon2"],
-                    name="Search for %s in %s"
-                    % (variables["query"], data["docset"]["name"]),
-                    on_enter=ExtensionCustomAction(data),
-                ),
-                ExtensionResultItem(
-                    icon=dir_path
-                    + os.path.sep
-                    + "images"
-                    + os.path.sep
-                    + "icon.png",
-                    name="Look in another docset",
-                    on_enter=ExtensionCustomAction(
-                        {"reset": True}, keep_app_open=True
-                    ),
-                ),
+                ResultItems.docset_searchforin_result(Vars.sel_docset, Vars.query),
+                ResultItems.docset_change_result(),
             ]
         )
     except Exception as error:  # pylint: disable=broad-except
