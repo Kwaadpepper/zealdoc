@@ -40,15 +40,12 @@ class KeywordQueryEventListener(EventListener):
 
   def on_event(self, event, extension):
     try:
-      log(extension, LogType.DEBUG)
-      log("Selected and items ? %d" % (Vars.is_sel))
       query = Vars.query = event.query.replace("zd ", "", 1)
-      log(query, LogType.WARNING)
       ext_results_sorted = []
 
       if Vars.is_sel:
         # open with dash-plugin://keys=python,django&query=string
-        log("EXEC SEARCH", LogType.WARNING)
+        log("EXEC SEARCH", LogType.DEBUG)
         Vars.query = query.replace(Vars.docset_query, "", 1).strip()
 
         return RenderResultListAction(
@@ -59,35 +56,35 @@ class KeywordQueryEventListener(EventListener):
                 ResultItems.docset_change_result(),
             ]
         )
-      else:
-        log("LIST DOCSETS", LogType.WARNING)
-        query = event.query.replace("zd ", "", 1)
 
-        # If User types a docset ID with keyword
-        if Docsets.docsetDict.get(query) or Vars.sel_docset:
+      query = event.query.replace("zd ", "", 1)
 
-          # filter query to remove docset ID if needed or assign a
-          # selected docset
-          if not Vars.is_sel:
-            Vars.is_sel = True
-            Vars.sel_docset = Docsets.docsetDict.get(query)
-          else:
-            Vars.query = query.replace(Vars.sel_docset["id"], "", 1).strip()
+      # If User types a docset ID with keyword
+      if Docsets.docsetDict.get(query):
+        log("SELECTED A DOCSET", LogType.DEBUG)
+        # filter query to remove docset ID if needed or assign a
+        # selected docset
+        Vars.is_sel = True
+        Vars.sel_docset = Docsets.docsetDict.get(query)
+        Vars.docset_query = Vars.sel_docset["id"]
 
-          return RenderResultListAction(
-              [
-                  ResultItems.docset_searchforin_result(
-                      Vars.sel_docset, query
-                  ),
-                  ResultItems.docset_change_result(),
-              ]
-          )
+        print(Vars.query)
 
-        # ELSE User would select a docset
-        Vars.is_sel = False
-        Vars.sel_docset = {}
-        for item in Docsets.sort_docsets(event.query):
-          ext_results_sorted.append(ResultItems.docset_result(item["docset"]))
+        return RenderResultListAction(
+            [
+                ResultItems.docset_searchforin_result(
+                    Vars.sel_docset, ''
+                ),
+                ResultItems.docset_change_result(),
+            ]
+        )
+
+      # ELSE User would select a docset
+      log("LIST DOCSETS", LogType.DEBUG)
+      Vars.is_sel = False
+      Vars.sel_docset = {}
+      for item in Docsets.sort_docsets(event.query):
+        ext_results_sorted.append(ResultItems.docset_result(item["docset"]))
 
       # return docsets sorted by score
       return RenderResultListAction(ext_results_sorted)
@@ -109,14 +106,14 @@ class ItemEnterEventListener(EventListener):
 
       if "reset" in data:
         # print docsets
-        log("LIST DOCSETS RESET", LogType.WARNING)
+        log("LIST DOCSETS RESET", LogType.DEBUG)
         Vars.is_sel = False
         Vars.sel_docset = {}
         for item in Docsets.sort_docsets(Vars.query):
           ext_results_sorted.append(ResultItems.docset_result(item["docset"]))
         return RenderResultListAction(ext_results_sorted)
 
-      log("QUERY IN DOCSET", LogType.WARNING)
+      log("QUERY IN DOCSET", LogType.DEBUG)
       # reset query to allow search in a specific docset
       Vars.query = ""
       Vars.is_sel = True
