@@ -1,0 +1,26 @@
+{
+    "required_api_version": "^2.0.0",
+    "name": "Zealdocs",
+    "description": "Provides fast search in zealdocs",
+    "developer_name": "Jérémy Munsch",
+    "icon": "images/icon.png",
+    "options": {
+      "query_debounce": 0.1
+    },
+    "preferences": [
+        {
+            "id": "demo_kw",
+            "type": "keyword",
+            "name": "Demo",
+            "description": "Demo extension",
+            "default_value": "dm"
+        },
+        {
+            "id": "zealAlias",
+            "type": "input",
+            "name": "Zeal keyword",
+            "description": "The keyword to call zealdocs",
+            "default_value": "zealo"
+        }
+    ]
+  }
