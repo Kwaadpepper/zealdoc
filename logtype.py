@@ -8,6 +8,7 @@ from enum import Enum
 
 class LogType(Enum):
   """Provides log types definition"""
+
   DEBUG = 0
   INFO = 1
   WARNING = 2

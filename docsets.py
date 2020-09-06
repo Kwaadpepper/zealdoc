@@ -84,9 +84,9 @@ class Docsets:
   @staticmethod
   def sort_docsets(query: str):
     """
-      Sorts docsets using damerau levenstein
+    Sorts docsets using damerau levenstein
 
-      query: The query string to calculate the score with
+    query: The query string to calculate the score with
     """
     self = Docsets
     ordered_docsets = []

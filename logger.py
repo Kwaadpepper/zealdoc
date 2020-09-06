@@ -10,12 +10,12 @@ from logtype import LogType
 
 def log(message: str, log_type: int = LogType.INFO):
   """
-    Log a message in std.out on a specified channel.
-    Default is info
+  Log a message in std.out on a specified channel.
+  Default is info
 
-    message: A message string
+  message: A message string
 
-    log_type: A channel of LogType (INFO, DEBUG, WARNING, ERROR)
+  log_type: A channel of LogType (INFO, DEBUG, WARNING, ERROR)
   """
   color = "\033[37;1m"  # white color (Info)
   logger = logging.getLogger("Zealdoc")

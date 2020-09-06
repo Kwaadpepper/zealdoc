@@ -14,8 +14,8 @@ class Variables:
   def __init__(self):
     self.is_sel = False
     self.sel_docset = {}
-    self.query = ''
-    self.docset_query = ''
+    self.query = ""
+    self.docset_query = ""
     self.docsets = []
 
   def __getitem__(self, name):
@@ -36,6 +36,6 @@ class Variables:
   def assert_attribute_exists(self, name):
     """Test if obj has an attribute"""
     if not hasattr(self, name):
-      error_string = 'Unknown variable %s' % name
+      error_string = "Unknown variable %s" % name
       log(error_string, LogType.ERROR)
       raise Exception(error_string)
