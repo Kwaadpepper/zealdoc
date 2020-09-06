@@ -1,13 +1,30 @@
-import os, configparser, plistlib
-from pathlib import Path
+"""
+Author: Jérémy Munsch <github@jeremydev.ovh>
+Licence: MIT
+"""
+
+# Standard
+import os
+import configparser
+import plistlib
+import traceback
+from os.path import sep as SEP
+
+# QT5
+from PyQt5.QtCore import QStandardPaths as QsPath
+
+# Ulauncher
+from ulauncher.utils.fuzzy_search import get_score as searchScore
+
+# Local
 from logger import log
 from logtype import LogType
-from os.path import sep as SEP
-from PyQt5.QtCore import QStandardPaths as QsPath
-from ulauncher.utils.fuzzy_search import get_score as searchScore
-import traceback
+
 
 class Docsets:
+  """
+  Provides Zeal docsets
+  """
 
   docsetDict = {}
   docsetsList = []
@@ -15,62 +32,70 @@ class Docsets:
   docsetPath = "Zeal%sZeal%sdocsets" % (SEP, SEP)
   Config = configparser.ConfigParser()
 
-  configLocations = QsPath.standardLocations(QsPath.ConfigLocation)
-  dataLocations = QsPath.standardLocations(QsPath.DataLocation)
+  config_locations = QsPath.standardLocations(QsPath.ConfigLocation)
+  data_locations = QsPath.standardLocations(QsPath.DataLocation)
 
   @staticmethod
-  def parseDocsets():
+  def parse_docsets():
+    """Looks for Zeal config file and parse docsets plists"""
     self = Docsets
     try:
       # Try to get config location
-      for configLocation in self.configLocations:
-        cPath = configLocation + SEP + self.configPath
-        if os.path.exists(cPath):
-          self.configPath = cPath
+      for config_location in self.config_locations:
+        c_path = config_location + SEP + self.configPath
+        if os.path.exists(c_path):
+          self.configPath = c_path
 
       # Try to get docset location
       try:
         if self.configPath:
           self.Config.read(self.configPath)
-          self.docsetPath = self.Config['docsets'].get('path')
-      except Exception as e:
+          self.docsetPath = self.Config["docsets"].get("path")
+      except Exception as error:  # pylint: disable=broad-except
         log("Could not get config file %s" % self.configPath, LogType.DEBUG)
       if self.docsetPath is None:
-        for dataLocation in self.dataLocations:
-          dPath = dataLocation + SEP + self.docsetPath
-          if os.path.exists(dPath):
-            self.docsetPath = dPath
+        for data_location in self.data_locations:
+          d_path = data_location + SEP + self.docsetPath
+          if os.path.exists(d_path):
+            self.docsetPath = d_path
 
       # try to get docset info
       for docset in os.listdir(self.docsetPath):
         docset = self.docsetPath + SEP + docset
-        icon = docset + SEP + 'icon.png'
-        icon2 = docset + SEP + 'icon@2x.png'
-        pList =  docset + SEP + "Contents" + SEP + "Info.plist"
-        with open(pList, 'rb') as f:
-          plist_data = plistlib.load(f)
-        dId = plist_data.get('CFBundleIdentifier')
-        self.docsetDict[dId] = {
-          'id': dId,
-          'name': plist_data.get('CFBundleName'),
-          'icon': icon if os.path.exists(icon) else None,
-          'icon2': icon2 if os.path.exists(icon2) else None,
+        icon = docset + SEP + "icon.png"
+        icon2 = docset + SEP + "icon@2x.png"
+        p_list = docset + SEP + "Contents" + SEP + "Info.plist"
+        with open(p_list, "rb") as plist_file:
+          plist_data = plistlib.load(plist_file)
+        d_id = plist_data.get("CFBundleIdentifier")
+        self.docsetDict[d_id] = {
+            "id": d_id,
+            "name": plist_data.get("CFBundleName"),
+            "icon": icon if os.path.exists(icon) else None,
+            "icon2": icon2 if os.path.exists(icon2) else None,
         }
-        self.docsetsList.append(self.docsetDict[dId])
+        self.docsetsList.append(self.docsetDict[d_id])
       return self.docsetsList
-    except Exception as e:
-      log(e, LogType.ERROR)
+    except Exception as error:  # pylint: disable=broad-except
+      log(error, LogType.ERROR)
       log(traceback.format_exc(), LogType.DEBUG)
       return []
 
   @staticmethod
-  def sortDocsets(query: str):
+  def sort_docsets(query: str):
+    """
+      Sorts docsets using damerau levenstein
+
+      query: The query string to calculate the score with
+    """
     self = Docsets
-    orderedDocsets = []
+    ordered_docsets = []
     for docset in self.docsetsList:
-      orderedDocsets.append({
-        'docset': docset,
-        'score': searchScore(query, docset['name']),
-      })
+      ordered_docsets.append(
+          {
+              "docset": docset,
+              "score": searchScore(query, docset["name"]),
+          }
+      )
     # sort items and assign them to CustomAction
-    return sorted(orderedDocsets, key=lambda x: x.get('score'), reverse=True)
+    return sorted(ordered_docsets, key=lambda x: x.get("score"), reverse=True)
