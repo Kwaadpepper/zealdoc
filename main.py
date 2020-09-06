@@ -115,11 +115,11 @@ class ItemEnterEventListener(EventListener):
 
       log("QUERY IN DOCSET", LogType.DEBUG)
       # reset query to allow search in a specific docset
+      Vars.docset_query = Vars.query # save docset keyword
       Vars.query = ""
       Vars.is_sel = True
       Vars.sel_docset = data
       # store docset typed keyword
-      Vars.docset_query = Vars.sel_docset["id"]
       # you may want to return another list of results
       return RenderResultListAction(
           [
