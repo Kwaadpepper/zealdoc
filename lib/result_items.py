@@ -11,6 +11,11 @@ from ulauncher.api.shared.action.OpenAction import OpenAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 
+# Local
+import lib.i18n
+
+_ = lib.i18n.__
+
 class ResultItems:
   """Gives result items to pass to ULauncher"""
 
@@ -32,7 +37,7 @@ class ResultItems:
     ResultItems.assert_valid_docset(item)
     return ExtensionResultItem(
         icon=item["icon2"],
-        name="Search for %s in %s" % (query, item["name"]),
+        name=_("Search for %s in %s") % (query, item["name"]),
         on_enter=OpenAction(
             path="dash-plugin://keys=%s&query=%s" % (item["id"], query)
         ),
@@ -46,7 +51,7 @@ class ResultItems:
     return ExtensionResultItem(
         icon=item["icon2"],
         name=item["name"],
-        description="Search in %s" % item["name"],
+        description=_("Search in %s") % (item["name"]),
         on_enter=ExtensionCustomAction(item, keep_app_open=True),
     )
 
@@ -58,6 +63,6 @@ class ResultItems:
 
     return ExtensionResultItem(
         icon=dir_path + sep + ".." + sep + "images" + os.path.sep + "icon.png",
-        name="Look in another docset",
+        name=_("Look in another docset"),
         on_enter=ExtensionCustomAction({"reset": True}, keep_app_open=True),
     )

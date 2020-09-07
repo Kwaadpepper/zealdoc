@@ -1,0 +1,27 @@
+# Licence MIT
+# Copyright (C) 2020
+# Jérémy Munsch <github@jeremydev.ovh>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"POT-Creation-Date: 2020-09-07 12:33+0200\n"
+"PO-Revision-Date: 2020-09-07 12:33+0200\n"
+"Last-Translator: Jérémy Munsch <github@jeremydev.ovh>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+
+#: lib/result_items.py:39
+msgid "Search for %s in %s"
+msgstr "Pesquise %s em %s"
+
+#: lib/result_items.py:53
+msgid "Search in %s"
+msgstr "Pesquisa em %s"
+
+#: lib/result_items.py:65
+msgid "Look in another docset"
+msgstr "Procure em outra documentação"
