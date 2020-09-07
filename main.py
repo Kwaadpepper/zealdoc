@@ -14,6 +14,8 @@ from ulauncher.api.shared.event import (
     ItemEnterEvent,
 )
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
+from ulauncher.api.shared.Response import Response
+from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 
 # Local
 from docsets import Docsets
@@ -21,12 +23,13 @@ from logger import log
 from logtype import LogType
 from variables import Variables
 from result_items import ResultItems
-
-Vars = Variables()
+# from change_query import update_query
 
 
 class Zealdocs(Extension):
   """Zealdoc plugin class"""
+
+  variables = Variables()
 
   def __init__(self):
     super().__init__()
@@ -34,46 +37,57 @@ class Zealdocs(Extension):
     self.subscribe(ItemEnterEvent, ItemEnterEventListener())  # <-- add this line
     Docsets.parse_docsets()
 
+    log('preferences  %s' % self.preferences, LogType.WARNING)
+
+  def update_ui_query_string(self, event, query):
+    """Changes Ui query string"""
+    log('preferences  %s' % self.variables.keyword , LogType.WARNING)
+
+    # pylint: disable=(protected-access)
+    self._client.send(Response(event, SetUserQueryAction(self.variables.keyword + ' ' + query)))
+
 
 class KeywordQueryEventListener(EventListener):
   """On type event"""
 
   def on_event(self, event, extension):
     try:
-      query = Vars.query = event.query.replace("zd ", "", 1)
+      vrs = extension.variables
+      vrs.keyword = event.query.split(' ')[0]
+      query = vrs.query = event.query.replace(vrs.keyword + " ", "", 1)
       ext_results_sorted = []
 
-      if Vars.is_sel:
+      if vrs.is_sel:
         # open with dash-plugin://keys=python,django&query=string
         log("EXEC SEARCH", LogType.DEBUG)
-        Vars.query = query.replace(Vars.docset_query, "", 1).strip()
+        vrs.query = query.replace(vrs.docset_query, "", 1).strip()
 
         return RenderResultListAction(
             [
                 ResultItems.docset_searchforin_result(
-                    Vars.sel_docset, Vars.query
+                    vrs.sel_docset, vrs.query
                 ),
                 ResultItems.docset_change_result(),
             ]
         )
 
-      query = event.query.replace("zd ", "", 1)
+      query = event.query.replace(vrs.keyword + " ", "", 1)
 
       # If User types a docset ID with keyword
       if Docsets.docsetDict.get(query):
         log("SELECTED A DOCSET", LogType.DEBUG)
         # filter query to remove docset ID if needed or assign a
         # selected docset
-        Vars.is_sel = True
-        Vars.sel_docset = Docsets.docsetDict.get(query)
-        Vars.docset_query = Vars.sel_docset["id"]
-
-        print(Vars.query)
+        vrs.is_sel = True
+        vrs.sel_docset = Docsets.docsetDict.get(query)
+        vrs.docset_query = vrs.sel_docset["id"]
+        # Update UI query string
+        extension.update_ui_query_string(event, '')
 
         return RenderResultListAction(
             [
                 ResultItems.docset_searchforin_result(
-                    Vars.sel_docset, ''
+                    vrs.sel_docset, ''
                 ),
                 ResultItems.docset_change_result(),
             ]
@@ -81,8 +95,8 @@ class KeywordQueryEventListener(EventListener):
 
       # ELSE User would select a docset
       log("LIST DOCSETS", LogType.DEBUG)
-      Vars.is_sel = False
-      Vars.sel_docset = {}
+      vrs.is_sel = False
+      vrs.sel_docset = {}
       for item in Docsets.sort_docsets(event.query):
         ext_results_sorted.append(ResultItems.docset_result(item["docset"]))
 
@@ -98,6 +112,7 @@ class ItemEnterEventListener(EventListener):
 
   def on_event(self, event, extension):
     try:
+      vrs = extension.variables
       data = event.get_data()
       ext_results_sorted = []
       # do additional actions here...
@@ -107,23 +122,25 @@ class ItemEnterEventListener(EventListener):
       if "reset" in data:
         # print docsets
         log("LIST DOCSETS RESET", LogType.DEBUG)
-        Vars.is_sel = False
-        Vars.sel_docset = {}
-        for item in Docsets.sort_docsets(Vars.query):
+        vrs.is_sel = False
+        vrs.sel_docset = {}
+        for item in Docsets.sort_docsets(vrs.query):
           ext_results_sorted.append(ResultItems.docset_result(item["docset"]))
         return RenderResultListAction(ext_results_sorted)
 
       log("QUERY IN DOCSET", LogType.DEBUG)
       # reset query to allow search in a specific docset
-      Vars.docset_query = Vars.query # save docset keyword
-      Vars.query = ""
-      Vars.is_sel = True
-      Vars.sel_docset = data
+      vrs.docset_query = vrs.query # save docset keyword
+      vrs.query = ""
+      vrs.is_sel = True
       # store docset typed keyword
+      vrs.sel_docset = data
+      # Update UI query string
+      extension.update_ui_query_string(event, vrs.query)
       # you may want to return another list of results
       return RenderResultListAction(
           [
-              ResultItems.docset_searchforin_result(Vars.sel_docset, Vars.query),
+              ResultItems.docset_searchforin_result(vrs.sel_docset, vrs.query),
               ResultItems.docset_change_result(),
           ]
       )
