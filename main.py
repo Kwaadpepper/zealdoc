@@ -36,11 +36,8 @@ class Zealdocs(Extension):
     self.subscribe(ItemEnterEvent, ItemEnterEventListener())  # <-- add this line
     Docsets.parse_docsets()
 
-    log("preferences  %s" % self.preferences, LogType.WARNING)
-
   def update_ui_query_string(self, event, query):
     """Changes Ui query string"""
-    log("preferences  %s" % self.variables.keyword, LogType.WARNING)
 
     # pylint: disable=(protected-access)
     self._client.send(
@@ -53,7 +50,6 @@ class Zealdocs(Extension):
       docset = Docsets.docsetDict.get(docset_or_docset_name)
     else:
       docset = docset_or_docset_name
-    log(" select  %s" % docset, LogType.WARNING)
     vrs = self.variables
     vrs.is_sel = True
     vrs.sel_docset = docset
