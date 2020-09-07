@@ -20,7 +20,7 @@
             "type": "keyword",
             "name": "Alias",
             "description": "An alias you could use to search in zealdoc",
-            "default_value": "dc"
+            "default_value": "doc"
         }
     ]
   }
