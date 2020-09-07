@@ -10,8 +10,8 @@ import plistlib
 import traceback
 from os.path import sep as SEP
 
-# QT5
-from PyQt5.QtCore import QStandardPaths as QsPath
+# XDG
+from xdg import BaseDirectory
 
 # Ulauncher
 from ulauncher.utils.fuzzy_search import get_score as searchScore
@@ -34,8 +34,8 @@ class Docsets:
   docsetPath = "Zeal%sZeal%sdocsets" % (SEP, SEP)
   Config = configparser.ConfigParser()
 
-  config_locations = QsPath.standardLocations(QsPath.ConfigLocation)
-  data_locations = QsPath.standardLocations(QsPath.DataLocation)
+  config_locations = BaseDirectory.xdg_config_dirs
+  data_locations = BaseDirectory.xdg_data_dirs
 
   @staticmethod
   def parse_docsets():
