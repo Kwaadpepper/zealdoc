@@ -12,7 +12,7 @@ class Variables:
   """Variables storage class"""
 
   def __init__(self):
-    self.keyword = ''
+    self.keyword = ""
     self.is_sel = False
     self.sel_docset = {}
     self.query = ""

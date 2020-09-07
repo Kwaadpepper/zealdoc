@@ -23,6 +23,7 @@ from logger import log
 from logtype import LogType
 from variables import Variables
 from result_items import ResultItems
+
 # from change_query import update_query
 
 
@@ -37,14 +38,16 @@ class Zealdocs(Extension):
     self.subscribe(ItemEnterEvent, ItemEnterEventListener())  # <-- add this line
     Docsets.parse_docsets()
 
-    log('preferences  %s' % self.preferences, LogType.WARNING)
+    log("preferences  %s" % self.preferences, LogType.WARNING)
 
   def update_ui_query_string(self, event, query):
     """Changes Ui query string"""
-    log('preferences  %s' % self.variables.keyword , LogType.WARNING)
+    log("preferences  %s" % self.variables.keyword, LogType.WARNING)
 
     # pylint: disable=(protected-access)
-    self._client.send(Response(event, SetUserQueryAction(self.variables.keyword + ' ' + query)))
+    self._client.send(
+        Response(event, SetUserQueryAction(self.variables.keyword + " " + query))
+    )
 
   def select_docset(self, docset_or_docset_name):
     """Select an active docset"""
@@ -79,11 +82,11 @@ class KeywordQueryEventListener(EventListener):
   def on_event(self, event, extension):
     try:
       vrs = extension.variables
-      vrs.keyword = event.query.split(' ')[0]
+      vrs.keyword = event.query.split(" ")[0]  # store docset used keyword
       query = vrs.query = event.query.replace(vrs.keyword + " ", "", 1)
 
+      # Is a docset selected ?
       if vrs.is_sel:
-        # open with dash-plugin://keys=python,django&query=string
         log("EXEC SEARCH", LogType.DEBUG)
         vrs.query = query.strip()
 
@@ -98,19 +101,17 @@ class KeywordQueryEventListener(EventListener):
 
       query = event.query.replace(vrs.keyword + " ", "", 1)
 
-      # If User types a docset ID with keyword
+      # If User types a docset ID withinz keyword
       if Docsets.docsetDict.get(query):
         log("SELECTED A DOCSET", LogType.DEBUG)
         # Select a docset
         extension.select_docset(query)
         # Update UI query string
-        extension.update_ui_query_string(event, '')
+        extension.update_ui_query_string(event, "")
 
         return RenderResultListAction(
             [
-                ResultItems.docset_searchforin_result(
-                    vrs.sel_docset, ''
-                ),
+                ResultItems.docset_searchforin_result(vrs.sel_docset, ""),
                 ResultItems.docset_change_result(),
             ]
         )
@@ -133,19 +134,15 @@ class ItemEnterEventListener(EventListener):
     try:
       vrs = extension.variables
       data = event.get_data()
-      # do additional actions here...
-      log(data, LogType.DEBUG)
-      log(event, LogType.DEBUG)
 
       if "reset" in data:
-        # print docsets
         log("LIST DOCSETS RESET", LogType.DEBUG)
         # Unselect docset
         extension.unselect_docset()
         # List docsets
         return RenderResultListAction(extension.get_sorted_docsets(vrs.query))
 
-      log("QUERY IN DOCSET %s" % vrs.query, LogType.DEBUG)
+      log("QUERY IN DOCSET", LogType.DEBUG)
       # Select a docset
       extension.select_docset(data)
       # Reset query to allow keyword search in the docset

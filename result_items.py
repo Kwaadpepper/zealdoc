@@ -29,7 +29,9 @@ class ResultItems:
 
   @staticmethod
   def docset_searchforin_result(item, query):
-    """Creates a docset 'search for in' result"""
+    """Creates a docset 'search for in' result
+    Zeal doc action example dash-plugin://keys=python,django&query=string
+    """
 
     ResultItems.assert_valid_docset(item)
     return ExtensionResultItem(
