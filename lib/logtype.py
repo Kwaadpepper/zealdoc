@@ -3,8 +3,8 @@ Author: Jérémy Munsch <github@jeremydev.ovh>
 Licence: MIT
 """
 
+# Standard
 from enum import Enum
-
 
 class LogType(Enum):
   """Provides log types definition"""

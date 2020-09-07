@@ -3,7 +3,6 @@ Author: Jérémy Munsch <github@jeremydev.ovh>
 Licence: MIT
 """
 
-
 # Standard
 import os
 
@@ -11,9 +10,6 @@ import os
 from ulauncher.api.shared.action.OpenAction import OpenAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-
 
 class ResultItems:
   """Gives result items to pass to ULauncher"""
@@ -57,6 +53,7 @@ class ResultItems:
   @staticmethod
   def docset_change_result():
     """Creates a docset result"""
+    dir_path = os.path.dirname(os.path.realpath(__file__))
 
     return ExtensionResultItem(
         icon=dir_path + os.path.sep + "images" + os.path.sep + "icon.png",

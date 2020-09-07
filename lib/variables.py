@@ -4,9 +4,8 @@ Licence: MIT
 """
 
 # Local
-from logger import log
-from logtype import LogType
-
+from lib import log
+from lib import LogType
 
 class Variables:
   """Variables storage class"""

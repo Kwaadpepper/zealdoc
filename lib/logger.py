@@ -3,10 +3,12 @@ Author: Jérémy Munsch <github@jeremydev.ovh>
 Licence: MIT
 """
 
+# Standard
 import os
 import logging
-from logtype import LogType
 
+# Local
+from lib import LogType
 
 def log(message: str, log_type: int = LogType.INFO):
   """

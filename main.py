@@ -18,13 +18,11 @@ from ulauncher.api.shared.Response import Response
 from ulauncher.api.shared.action.SetUserQueryAction import SetUserQueryAction
 
 # Local
-from docsets import Docsets
-from logger import log
-from logtype import LogType
-from variables import Variables
-from result_items import ResultItems
-
-# from change_query import update_query
+from lib import Docsets
+from lib import log
+from lib import LogType
+from lib import Variables
+from lib import ResultItems
 
 
 class Zealdocs(Extension):

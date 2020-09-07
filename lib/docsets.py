@@ -17,9 +17,8 @@ from PyQt5.QtCore import QStandardPaths as QsPath
 from ulauncher.utils.fuzzy_search import get_score as searchScore
 
 # Local
-from logger import log
-from logtype import LogType
-
+from lib import log
+from lib import LogType
 
 class Docsets:
   """
