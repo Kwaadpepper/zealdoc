@@ -4,6 +4,7 @@
     "description": "Provides fast search in zealdocs",
     "developer_name": "Jérémy Munsch",
     "icon": "images/icon.png",
+    "version": "1.0",
     "options": {
       "query_debounce": 0.1
     },
