@@ -1,9 +1,8 @@
-# Ulauncher Zealdoc extension
+# [Ulauncher](https://github.com/Ulauncher/Ulauncher) Zealdoc extension
 
 **This is compatible with v2.0.0 api only**
 
 It scan for installed docs and allow to type a keyword in a specific docset.
-It should be system agnostic (working on Linux, Windows and Mac).
 
 Please report any issue.
 
