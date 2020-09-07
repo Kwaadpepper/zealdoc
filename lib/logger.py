@@ -8,7 +8,9 @@ import os
 import logging
 
 # Local
-from lib import LogType
+import lib.logtype
+
+LogType = lib.logtype.LogType
 
 def log(message: str, log_type: int = LogType.INFO):
   """
