@@ -60,7 +60,7 @@ class KeywordQueryEventListener(EventListener):
       if vrs.is_sel:
         # open with dash-plugin://keys=python,django&query=string
         log("EXEC SEARCH", LogType.DEBUG)
-        vrs.query = query.replace(vrs.docset_query, "", 1).strip()
+        vrs.query = query.strip()
 
         return RenderResultListAction(
             [
