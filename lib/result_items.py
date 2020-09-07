@@ -54,9 +54,10 @@ class ResultItems:
   def docset_change_result():
     """Creates a docset result"""
     dir_path = os.path.dirname(os.path.realpath(__file__))
+    sep = os.path.sep
 
     return ExtensionResultItem(
-        icon=dir_path + os.path.sep + "images" + os.path.sep + "icon.png",
+        icon=dir_path + sep + ".." + sep + "images" + os.path.sep + "icon.png",
         name="Look in another docset",
         on_enter=ExtensionCustomAction({"reset": True}, keep_app_open=True),
     )
