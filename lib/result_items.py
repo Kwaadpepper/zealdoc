@@ -39,7 +39,7 @@ class ResultItems:
         icon=item["icon2"],
         name=_("Search for %s in %s") % (query, item["name"]),
         on_enter=OpenAction(
-            path="dash-plugin://keys=%s&query=%s" % (item["id"], query)
+            path="dash-plugin:keys=%s&query=%s" % (item["id"], query)
         ),
     )
 
